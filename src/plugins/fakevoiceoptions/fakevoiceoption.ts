@@ -1,4 +1,4 @@
-import definePlugin, { OptionType } from "../utils/types";
+import definePlugin, { OptionType } from "@utils/types";
 
 export default definePlugin({
     name: "Fake Voice Options",
@@ -9,16 +9,16 @@ export default definePlugin({
     }],
     patches: [
         {
-            find: "e.setSelfMute(n);",
+            find: "e.setSelfMute(n)",
             replacement: [{
                 // prevent client-side mute
-                match: /e\.setSelfMute\(n\);/g,
-                replace: 'e.setSelfMute(Vencord.Settings.plugins["Fake Voice Options"].fakeMute?false:n);'
+                match: /e\.setSelfMute\(n\),/g,
+                replace: 'e.setSelfMute(Vencord.Settings.plugins["Fake Voice Options"].fakeMute?false:n),'
             },
             {
                 // prevent client-side deafen
                 match: /e\.setSelfDeaf\(t\.deaf\)/g,
-                replace: 'e.setSelfDeaf(Vencord.Settings.plugins["Fake Voice Options"].fakeDeafen?false:t.deaf);'
+                replace: 'e.setSelfDeaf(Vencord.Settings.plugins["Fake Voice Options"].fakeDeafen?false:t.deaf)'
             }]
         },
     ],
