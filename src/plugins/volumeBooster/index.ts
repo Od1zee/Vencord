@@ -39,7 +39,7 @@ interface StreamData {
     gainNode?: GainNode,
     id: string,
     levelNode: AudioWorkletNode,
-    sinkId: string,
+    sinkId: string | "default",
     stream: MediaStream,
     streamSourceNode?: MediaStreamAudioSourceNode,
     videoStreamId: string,
@@ -89,7 +89,7 @@ export default definePlugin({
             find: "AudioContextSettingsMigrated",
             replacement: [
                 {
-                    match: /(?<=isLocalMute\(\i,\i\),volume:.+?volume:)\i(?=})/,
+                    match: /(?<=isLocalMute\(\i,\i\),volume:(\i).+?\i\(\i,\i,)\1(?=\))/,
                     replace: "$&>200?200:$&"
                 },
                 {
@@ -126,6 +126,12 @@ export default definePlugin({
             const gain = data.gainNode = data.audioContext.createGain();
             data.streamSourceNode.connect(gain);
             gain.connect(data.audioContext.destination);
+        }
+
+        // @ts-expect-error
+        if (data.sinkId != null && data.sinkId !== data.audioContext.sinkId && "setSinkId" in AudioContext.prototype) {
+            // @ts-expect-error https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/setSinkId
+            data.audioContext.setSinkId(data.sinkId);
         }
 
         data.gainNode.gain.value = data._mute
